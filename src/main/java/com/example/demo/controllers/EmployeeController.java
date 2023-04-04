@@ -1,9 +1,12 @@
 package com.example.demo.controllers;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,55 +22,71 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.domains.Employee;
 import com.example.demo.services.EmployeeService;
 
-@RestController
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@RequestMapping(path = "/api/employees", produces = "application/json")
+@RestController
+// //@AllArgsConstructor
+// @RequiredArgsConstructor
+//@Transactional
+@RequestMapping(path = "/api/employee", produces = "application/json")
 @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE,
         RequestMethod.PUT }, maxAge = 3600)
 public class EmployeeController {
-
+    //DT= --> DATA TRANSFER OBJECT: permette di filtrare le informazioni in uscita
+    @Autowired
     EmployeeService employeeService;
 
-    public EmployeeController(EmployeeService employeeService) {
-        this.employeeService = employeeService;
-    }
+    // public EmployeeController(EmployeeService employeeService) {
+    //     this.employeeService = employeeService;
+    // }
 
+  
     @GetMapping()
     public List<Employee> getEmployees() {
         return this.employeeService.findAll();
     }
-
     @GetMapping("{id}")
     public ResponseEntity<Employee> getEmployee(@PathVariable Long id) {
-        Optional<Employee> employee = this.employeeService.findById(id);
-
-        if (employee.isPresent())
-            return new ResponseEntity<Employee>(employee.get(), HttpStatus.valueOf(302)); // Found
-        else
-            return new ResponseEntity<Employee>(HttpStatus.valueOf(404)); // Not Found
+        Optional<Employee> opt= this.employeeService.findById(id);
+        if (opt.isPresent())
+            return new ResponseEntity<Employee>(opt.get(),HttpStatus.OK);
+        else    
+            return new ResponseEntity<Employee>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     public ResponseEntity<Employee> add(@RequestBody Employee entity) {
         if (this.employeeService.save(entity).isPresent())
-            return new ResponseEntity<Employee>(entity, HttpStatus.valueOf(201)); // Created
+            return new ResponseEntity<Employee>(entity, HttpStatus.CREATED);
         else
-            return new ResponseEntity<Employee>(HttpStatus.valueOf(400)); // Bad Request
+            return new ResponseEntity<Employee>(HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("")
     public ResponseEntity<Employee> update(@RequestBody Employee entity) {
         if (this.employeeService.save(entity).isPresent())
-            return new ResponseEntity<Employee>(entity, HttpStatus.valueOf(201)); // Created
+            return new ResponseEntity<Employee>(entity, HttpStatus.CREATED);
         else
-            return new ResponseEntity<Employee>(HttpStatus.valueOf(400)); // Bad Request
+            return new ResponseEntity<Employee>(HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Employee> delete(@PathVariable Long id) {
         if (this.employeeService.delete(id).isPresent())
-            return new ResponseEntity<Employee>(HttpStatus.valueOf(200)); // Ok
+            return new ResponseEntity<Employee>(HttpStatus.OK);
         else
-            return new ResponseEntity<Employee>(HttpStatus.valueOf(404)); // Not Found
+            return new ResponseEntity<Employee>(HttpStatus.NOT_FOUND);
     }
+    @PutMapping("/{idDip}/{idTask}")
+    public ResponseEntity<Employee> addTaskDipendente(@PathVariable Long idDip, @PathVariable Long idTask) {
+        Optional<Employee> opt= this.employeeService.addTaskToEmployee(idDip,idTask);
+        if (opt.isPresent())
+            return new ResponseEntity<Employee>(opt.get(),HttpStatus.OK);
+        else    
+            return new ResponseEntity<Employee>(HttpStatus.NOT_FOUND);
+    }
+
 }

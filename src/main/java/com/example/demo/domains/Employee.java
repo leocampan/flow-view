@@ -1,7 +1,15 @@
 package com.example.demo.domains;
 
-import java.math.*;
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -17,11 +25,9 @@ public class Employee {
      * MEMBERSHIP_COUNT bigint
      * DEPARTMENT_ID bigint
      */
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     Long employee_id;
-
     @Column(length = 20)
     String first_name;
 
@@ -30,33 +36,50 @@ public class Employee {
 
     @Column(length = 45)
     String email;
-
     @Column(precision = 18, scale = 4)
     BigDecimal salary;
 
     double total_work_percentage;
+
     Long membership_count;
     Long department_id;
 
-    // @Column(name ="leader_id", nullable = false
-    /*
-     * ORM
-     */
+  
+    @OneToMany(mappedBy = "leader", 
+        
+        cascade = { CascadeType.MERGE,CascadeType.PERSIST }, 
+        orphanRemoval = true)
+    //@JsonIgnore
+    @JsonManagedReference
+    Set<Project> projects= new HashSet<>();
 
-    @OneToMany(
-        mappedBy = "leader", // Mappatura dell'attributodi classe della chiave esterna
-        cascade = { CascadeType.ALL }, 
-        orphanRemoval = true
-    )
-
-    //@JsonIgnore 
-    Set<Project> projects; // Insieme univoco di progetti gestiti da un solo impiegato
+    @OneToMany(mappedBy = "coordinator", cascade = {CascadeType.MERGE,CascadeType.PERSIST}, orphanRemoval = true)
+    @JsonIgnore
+    
+    Set<Task> coordinator_tasks= new HashSet<>();
+    
+    //LAZY: rallenta le richieste. Da la possiboità di ottimizzare la gestione della memoria. JSON non fa richieste.
+    //EAGER: carica preventivamente i dati
+    @ManyToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @JoinTable(
+      name = "emp_tasks", 
+      joinColumns = @JoinColumn(name = "employee_id", nullable = false), 
+      inverseJoinColumns = @JoinColumn(name = "task_id", nullable = false),
+      foreignKey = @ForeignKey(
+        name = "fk_employes_tasks_id"
+        )
+      
+      )
+      //mapped by dall'altra
+    @JsonIgnore
+    Set<Task> tasks;
 
     public Employee() {
     }
 
-    public Employee(Long employee_id, String first_name, String last_name, String email, BigDecimal salary,
-            double total_work_percentage, Long membership_count, Long department_id, Set<Project> projects) {
+
+    
+    public Employee(Long employee_id, String first_name, String last_name, String email, BigDecimal salary, double total_work_percentage, Long membership_count, Long department_id, Set<Project> projects, Set<Task> coordinator_tasks, Set<Task> tasks) {
         this.employee_id = employee_id;
         this.first_name = first_name;
         this.last_name = last_name;
@@ -66,6 +89,8 @@ public class Employee {
         this.membership_count = membership_count;
         this.department_id = department_id;
         this.projects = projects;
+        this.coordinator_tasks = coordinator_tasks;
+        this.tasks = tasks;
     }
 
     public Long getEmployee_id() {
@@ -132,12 +157,33 @@ public class Employee {
         this.department_id = department_id;
     }
 
+    public List<Long> getProjects_project_id() {
+        return this.projects.stream().map(e -> e.getProject_id()).collect(Collectors.toList());
+    }
+    @JsonIgnore
     public Set<Project> getProjects() {
         return this.projects;
     }
 
+
     public void setProjects(Set<Project> projects) {
         this.projects = projects;
+    }
+
+    public Set<Task> getCoordinator_tasks() {
+        return this.coordinator_tasks;
+    }
+
+    public void setCoordinator_tasks(Set<Task> coordinator_tasks) {
+        this.coordinator_tasks = coordinator_tasks;
+    }
+    @JsonIgnore
+    public Set<Task> getTasks() {
+        return this.tasks;
+    }
+
+    public void setTasks(Set<Task> tasks) {
+        this.tasks = tasks;
     }
 
     public Employee employee_id(Long employee_id) {
@@ -185,6 +231,16 @@ public class Employee {
         return this;
     }
 
+    public Employee coordinator_tasks(Set<Task> coordinator_tasks) {
+        setCoordinator_tasks(coordinator_tasks);
+        return this;
+    }
+
+    public Employee tasks(Set<Task> tasks) {
+        setTasks(tasks);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -193,7 +249,7 @@ public class Employee {
             return false;
         }
         Employee employee = (Employee) o;
-        return Objects.equals(employee_id, employee.employee_id);
+        return Objects.equals(employee_id, employee.employee_id) ;
     }
 
     @Override
@@ -204,15 +260,19 @@ public class Employee {
     @Override
     public String toString() {
         return "{" +
-                " employee_id='" + getEmployee_id() + "'" +
-                ", first_name='" + getFirst_name() + "'" +
-                ", last_name='" + getLast_name() + "'" +
-                ", email='" + getEmail() + "'" +
-                ", salary='" + getSalary() + "'" +
-                ", total_work_percentage='" + getTotal_work_percentage() + "'" +
-                ", membership_count='" + getMembership_count() + "'" +
-                ", department_id='" + getDepartment_id() + "'" +
-                ", projects='" + getProjects() + "'" +
-                "}";
+            " employee_id='" + getEmployee_id() + "'" +
+            ", first_name='" + getFirst_name() + "'" +
+            ", last_name='" + getLast_name() + "'" +
+            ", email='" + getEmail() + "'" +
+            ", salary='" + getSalary() + "'" +
+            ", total_work_percentage='" + getTotal_work_percentage() + "'" +
+            ", membership_count='" + getMembership_count() + "'" +
+            ", department_id='" + getDepartment_id() + "'" +
+            ", projects='" + getProjects() + "'" +
+            ", coordinator_tasks='" + getCoordinator_tasks() + "'" +
+            ", tasks='" + getTasks() + "'" +
+            "}";
     }
+
+
 }

@@ -1,4 +1,9 @@
-project management
+02_backend_pm_con_task_emptask
+
+1) aggiunta @manytomany tra employee e task
+2) aggiunta onetomany tra employee e task come coordinator
+
+01_backend_pm_solo_employee_project project management
 
 questa versione implementa solo le entità
 1) Employee
@@ -9,12 +14,12 @@ con i corrispondenti repository, service e controller.
 Tra Employee e Project è definità una relazione molti a uno bidirezionale.
 
 lato Employee
-    @OneToMany(mappedBy = "leader", cascade = { CascadeType.ALL }, orphanRemoval = true)
+    @OneToMany(mappedBy = "leader", cascade = { CascadeType.MERGE,CascadeType.PERSIST }, orphanRemoval = true)
     @JsonIgnore
     Set<Project> projects;
 
 lato Project
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE,CascadeType.PERSIST })
     @MapsId("employee_id")
     @JoinColumn(
             name = "leader_id",
@@ -26,7 +31,7 @@ lato Project
     @JsonIdentityReference
     private Employee leader;
 
-La FK constraint prevede con  CascadeType.ALL
+La FK constraint prevede con  CascadeType.MERGE,CascadeType.PERSIST
 1) update e delete a cascata nel caso che un Employee sia eliminato o cha la sua chiave primaria cambi
 2) @MapsId https://jakarta.ee/specifications/platform/9/apidocs/jakarta/persistence/mapsid
    Determina un attributo di relazione ManyToOne o OneToOne che fornisce il mapping per una chiave primaria
@@ -40,11 +45,9 @@ La FK constraint prevede con  CascadeType.ALL
                     name = "fk_projects_leader_id"
                     )
 
-6) Ricordarsi che le fk constaint anche se impostate su cascade.ALL, nel db saranno restricted sia in update che in delete.
+6) Ricordarsi che le fk constaint anche se impostate su CascadeType.MERGE,CascadeType.PERSIST, nel db saranno restricted sia in update che in delete.
    Si occuperà l'ORM della cancellazione/aggiornamneto a cascata
 
-7) https://www.npmjs.com/package/swagger-ui-express 
 
-8) https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 
-9) orphanRemoval = onDeleteCascade su SQL
+   post 
