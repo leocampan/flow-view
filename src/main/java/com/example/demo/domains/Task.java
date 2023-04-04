@@ -50,8 +50,6 @@ public class Task{
 
         @Column(length = 1)
         String task_status;
-
-        
         
         // Long project_id;
 

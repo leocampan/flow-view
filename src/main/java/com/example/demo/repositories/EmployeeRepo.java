@@ -5,9 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import com.example.demo.domains.Employee;
 
-import jakarta.transaction.Transactional;
-
-//@Transactional
 @Repository
 public interface EmployeeRepo extends JpaRepository<Employee, Long> {
 

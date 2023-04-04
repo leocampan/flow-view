@@ -1,5 +1,6 @@
-1)  Tutorial utili:
-
+1)  Link utili:
+    
+    http://localhost:8099/swagger-ui/index.html#/
     https://www.baeldung.com/spring-resttemplate-post-json
     https://www.baeldung.com/spring-boot-testresttemplate
     https://www.javaguides.net/2019/06/spring-resttemplate-get-post-put-and-delete-example.html
@@ -17,5 +18,7 @@
 6)  @JoinColumn --> stabilisce in nome del campo chiave esterna nella parte molti della relazione.
 
 7)  Le FK constaint anche se impostate su CascadeType.MERGE, CascadeType.PERSIST, nel DB saranno restricted sia in update che in delete. Si occuperà la ORM della cancellazione/aggiornamneto a cascata
+
+    
 
 
