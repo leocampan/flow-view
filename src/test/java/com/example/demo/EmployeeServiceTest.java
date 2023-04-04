@@ -2,19 +2,13 @@ package com.example.demo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.math.BigDecimal;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -25,24 +19,18 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.Assert;
-
-import com.example.configuration.WebsocketSourceConfiguration;
 import com.example.demo.domains.Employee;
 import com.example.demo.services.EmployeeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.transaction.Transactional;
 
-//https://www.baeldung.com/spring-resttemplate-post-json
+@Transactional // Annotation che mantiene la sessione di repository per
+               // poter accedere ai dati esterni all'oggetto come le FK
+               // quando non è stata specificata la fetchstrategy.EAGER
 
-// tutorial https://www.baeldung.com/spring-boot-testresttemplate
-// https://www.javaguides.net/2019/06/spring-resttemplate-get-post-put-and-delete-example.html
-@Transactional
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT) // viene allocata una porta casuale
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT) // Viene allocata una porta casuale
 public class EmployeeServiceTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
@@ -65,7 +53,7 @@ public class EmployeeServiceTest {
         System.out.println(response.toString());
     }
 
-    // https://www.concretepage.com/spring-5/spring-resttemplate-getforentity
+    // 
     @Test
     public void getEmployee_rest() {
         String url = createURLWithPort("/api/employee/{id}");
